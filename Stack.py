@@ -23,8 +23,9 @@ class ChipStack:
         result = []
         for i in self.stack:
             result.append(COLOR_MAP[i])
-        result.extend(["EMPTY" for _ in range(self.stack_max - len(result))])
-        return str(result)
+        if len(self.stack) == self.stack_max:
+            return str(result) + ' MAX'
+        return str(result) + f' {self.stack_max - len(self.stack)} slot(s)'
 
     def __len__(self):
         return len(self.stack)
@@ -65,9 +66,11 @@ class ChipStack:
 class Game:
     stack_num: int
     stacks: List[ChipStack]
+    empty: int
 
     def __init__(self, stack_num):
         self.stack_num = stack_num
+        self.empty = 1
         self.stacks = []
         for i in range(stack_num):
             self.stacks.append(ChipStack(STACK_MAX))
@@ -93,7 +96,7 @@ class Game:
                 stack.add_item(lst.pop())
 
     def is_done(self):
-        empty = 1
+        empty = self.empty
         for stack in self.stacks:
             if not (stack.is_same() and stack.is_full()):
                 if stack.is_empty():
@@ -104,6 +107,8 @@ class Game:
         return True
 
     def is_movable(self, source_index: int, destination_index: int):
+        if source_index == destination_index:
+            return False
         source, destination = self.stacks[source_index], self.stacks[destination_index]
         if source.is_empty():
             return False
@@ -122,18 +127,22 @@ class Game:
             print(f"CANNOT MOVE #{source_index} to #{destination_index}")
         print(self)
 
+    def add_stack(self):
+        self.stacks.append(ChipStack(STACK_MAX))
+
+    def run(self):
+        print("Start")
+        print(self)
+        while not self.is_done():
+            if input("Need more Stack? y/n ") == 'y':
+                self.empty += 1
+                self.add_stack()
+                print(self)
+            self.move(int(input("from stack number: ")), int(input("to stack number: ")))
+        print('You Win!')
+
 
 if __name__ == '__main__':
     random.seed(2)
     game = Game(4)
-    print("Start")
-    print(game)
-
-    # game.move(0, 3)
-    # game.move(1, 0)
-    # game.move(2, 0)
-    # game.move(1, 3)
-    # game.move(2, 1)
-    # game.move(0, 2)
-    # print(game.is_done())
-
+    game.run()
