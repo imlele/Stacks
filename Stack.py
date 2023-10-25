@@ -1,28 +1,37 @@
 import random
 from typing import List, Union
+from enum import Enum
+from enum import unique
 
 STACK_MAX = 10
-COLOR_MAP = {
-    0: 'RED',
-    1: 'GREEN',
-    2: 'YELLOW',
-    3: 'BLUE',
-    4: 'PINK'
-}
+
+
+@unique
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+    YELLOW = 4
+    PINK = 5
 
 
 class ChipStack:
     stack_max: int
-    stack: List[int]
+    stack: List[Color]
 
-    def __init__(self, stack_max: int) -> None:
+    def __init__(self, stack=None, stack_max=STACK_MAX, ) -> None:
         self.stack_max = stack_max
-        self.stack = []
+        if stack is None:
+            self.stack = []
+        else:
+            self.stack = stack
+
+
 
     def __str__(self):
         result = []
-        for i in self.stack:
-            result.append(COLOR_MAP[i])
+        for color in self.stack:
+            result.append(color.name)
         if len(self.stack) == self.stack_max:
             return str(result) + ' MAX'
         return str(result) + f' {self.stack_max - len(self.stack)} slot(s)'
@@ -42,8 +51,8 @@ class ChipStack:
     def is_empty(self):
         return len(self.stack) == 0
 
-    def add_item(self, item: Union[int, List[int]]):
-        if isinstance(item, int):
+    def add_item(self, item: Union[Color, List[Color]]):
+        if isinstance(item, Color):
             self.stack.append(item)
         else:
             self.stack.extend(item)
@@ -72,9 +81,18 @@ class Game:
         self.stack_num = stack_num
         self.empty = 1
         self.stacks = []
-        for i in range(stack_num):
-            self.stacks.append(ChipStack(STACK_MAX))
-        self.start()
+        total_color = self.stack_num - self.empty
+        selected_color = random.sample(list(Color), total_color)
+        color_lists = [[color] * STACK_MAX for color in selected_color]
+        merged_list = [color for sublist in color_lists for color in sublist]
+        random.shuffle(merged_list)
+        for i in range(0, len(merged_list), STACK_MAX):
+            stack_slice = merged_list[i:i + STACK_MAX]
+            stack = ChipStack(stack=stack_slice)
+            self.stacks.append(stack)
+        for i in range(self.empty):
+            self.stacks.append(ChipStack())
+        print(self)
 
     def __str__(self):
         result = ''
@@ -83,17 +101,6 @@ class Game:
             result += f"Stack #{count}: " + str(stack) + '\n'
             count += 1
         return result
-
-    def start(self):
-        total_color = self.stack_num - 1
-        colors = random.sample(list(COLOR_MAP.keys()), total_color)
-        lst = []
-        for color in colors:
-            lst.extend([color] * STACK_MAX)
-        random.shuffle(lst)
-        for stack in self.stacks[:-1]:
-            while not stack.is_full():
-                stack.add_item(lst.pop())
 
     def is_done(self):
         empty = self.empty
@@ -128,21 +135,24 @@ class Game:
         print(self)
 
     def add_stack(self):
-        self.stacks.append(ChipStack(STACK_MAX))
+        self.stacks.append(ChipStack())
 
     def run(self):
-        print("Start")
-        print(self)
-        while not self.is_done():
-            if input("Need more Stack? y/n ") == 'y':
-                self.empty += 1
-                self.add_stack()
-                print(self)
-            self.move(int(input("from stack number: ")), int(input("to stack number: ")))
-        print('You Win!')
+        if input("Need more Stack? y/n ") == 'y':
+            self.empty += 1
+            self.add_stack()
+            print(self)
+        while True:
+            try:
+                self.move(int(input("from stack number: ")), int(input("to stack number: ")))
+                break
+            except ValueError:
+                print("Invalid input. Please enter a valid integer.")
 
 
 if __name__ == '__main__':
     random.seed(2)
     game = Game(4)
-    game.run()
+    while not game.is_done():
+        game.run()
+    print("You win!")
