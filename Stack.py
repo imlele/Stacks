@@ -13,6 +13,26 @@ class Color(Enum):
     BLUE = 3
     YELLOW = 4
     PINK = 5
+    ORANGE = 6
+    PURPLE = 7
+    CYAN = 8
+    BROWN = 9
+    MAGENTA = 10
+    LIME = 11
+    TEAL = 12
+    INDIGO = 13
+    VIOLET = 14
+    PEACH = 15
+    WHITE = 16
+    BLACK = 17
+    SILVER = 18
+    GOLD = 19
+    GRAY = 20
+    NAVY = 21
+    OLIVE = 22
+    MAROON = 23
+    AQUA = 24
+    LAVENDER = 25
 
 
 class ChipStack:
