@@ -1,7 +1,9 @@
 import random
+from itertools import permutations
 from typing import List, Union
 from enum import Enum
 from enum import unique
+from collections import Counter
 
 STACK_MAX = 10
 
@@ -46,8 +48,6 @@ class ChipStack:
         else:
             self.stack = stack
 
-
-
     def __str__(self):
         result = []
         for color in self.stack:
@@ -91,21 +91,32 @@ class ChipStack:
         self.stack = self.stack[:-n]
         return movable
 
+    def find_most_common(self):
+        if self.stack:
+            counter = Counter(self.stack)
+            return counter.most_common(1)[0][1]
+        return 1
+
 
 class Game:
     stack_num: int
+    color_num: int
     stacks: List[ChipStack]
     empty: int
 
-    def __init__(self, stack_num):
+    def __init__(self, stack_num, color_num, empty=1):
         self.stack_num = stack_num
-        self.empty = 1
+        self.color_num = color_num
+        self.empty = empty
         self.stacks = []
-        total_color = self.stack_num - self.empty
+        total_color = self.color_num - self.empty
         selected_color = random.sample(list(Color), total_color)
-        color_lists = [[color] * STACK_MAX for color in selected_color]
+        color_lists = []
+        for i in range(self.stack_num - self.empty):
+            color_lists.append([random.choice(selected_color)] * STACK_MAX)
         merged_list = [color for sublist in color_lists for color in sublist]
         random.shuffle(merged_list)
+
         for i in range(0, len(merged_list), STACK_MAX):
             stack_slice = merged_list[i:i + STACK_MAX]
             stack = ChipStack(stack=stack_slice)
@@ -128,7 +139,8 @@ class Game:
             if not (stack.is_same() and stack.is_full()):
                 if stack.is_empty():
                     empty -= 1
-                    if empty < 0: return False
+                    if empty < 0:
+                        return False
                 else:
                     return False
         return True
@@ -154,8 +166,14 @@ class Game:
             print(f"CANNOT MOVE #{source_index} to #{destination_index}")
         print(self)
 
+    def apply_move(self, source_index: int, destination_index: int):
+        source, destination = self.stacks[source_index], self.stacks[destination_index]
+        if self.is_movable(source_index, destination_index):
+            destination.add_item(source.pop_items(source.get_movables()))
+
     def add_stack(self):
         self.stacks.append(ChipStack())
+        self.empty += 1
 
     def run(self):
         if input("Need more Stack? y/n ") == 'y':
@@ -168,6 +186,29 @@ class Game:
                 break
             except ValueError:
                 print("Invalid input. Please enter a valid integer.")
+
+    def possible_moves(self):
+        moves = list(permutations(list(range(len(self.stacks))), 2))
+        possibles = []
+        for move in moves:
+            if self.is_movable(*move):
+                possibles.append(move)
+        if possibles:
+            return possibles
+        else:
+            # print("ADD A STACK")
+            self.add_stack()
+            return self.possible_moves()
+
+
+    def purity(self) -> float:
+        occupied = sum(len(stack) > 0 for stack in self.stacks)
+        purities = 0
+        for stack in self.stacks:
+            if stack:
+                purities += stack.find_most_common() / len(stack)
+        return purities / occupied
+
 
 
 if __name__ == '__main__':
