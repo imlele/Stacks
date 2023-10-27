@@ -87,6 +87,8 @@ class ChipStack:
         return count
 
     def pop_items(self, n):
+        if n == 0:
+            return []
         movable = self.stack[-n:]
         self.stack = self.stack[:-n]
         return movable
@@ -109,10 +111,13 @@ class Game:
         self.color_num = color_num
         self.empty = empty
         self.stacks = []
-        total_color = self.color_num - self.empty
+        assert self.stack_num > self.color_num, "Number of stacks should be greater than or equal to number of colors."
+        total_color = self.color_num
         selected_color = random.sample(list(Color), total_color)
         color_lists = []
-        for i in range(self.stack_num - self.empty):
+        for color in selected_color:
+            color_lists.append([color] * STACK_MAX)
+        for i in range(self.stack_num - self.empty - len(color_lists)):
             color_lists.append([random.choice(selected_color)] * STACK_MAX)
         merged_list = [color for sublist in color_lists for color in sublist]
         random.shuffle(merged_list)
@@ -151,9 +156,14 @@ class Game:
         source, destination = self.stacks[source_index], self.stacks[destination_index]
         if source.is_empty():
             return False
+        if source.is_full() and source.is_same():
+            return False
         if not destination.is_empty() and source[-1] != destination[-1]:
             return False
         if len(destination) + source.get_movables() > destination.stack_max:
+            if not (source.is_same() and destination.is_same()):
+                return False
+        if source.is_same() and destination.is_empty():
             return False
         return True
 
@@ -169,7 +179,9 @@ class Game:
     def apply_move(self, source_index: int, destination_index: int):
         source, destination = self.stacks[source_index], self.stacks[destination_index]
         if self.is_movable(source_index, destination_index):
-            destination.add_item(source.pop_items(source.get_movables()))
+            num = min(source.get_movables(), destination.stack_max - len(destination))
+            move_item = source.pop_items(num)
+            destination.add_item(move_item)
 
     def add_stack(self):
         self.stacks.append(ChipStack())
@@ -193,13 +205,7 @@ class Game:
         for move in moves:
             if self.is_movable(*move):
                 possibles.append(move)
-        if possibles:
-            return possibles
-        else:
-            # print("ADD A STACK")
-            self.add_stack()
-            return self.possible_moves()
-
+        return possibles
 
     def purity(self) -> float:
         occupied = sum(len(stack) > 0 for stack in self.stacks)
@@ -208,7 +214,6 @@ class Game:
             if stack:
                 purities += stack.find_most_common() / len(stack)
         return purities / occupied
-
 
 
 if __name__ == '__main__':
