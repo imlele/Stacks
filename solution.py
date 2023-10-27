@@ -1,39 +1,16 @@
 import copy
+import random
+from Stack import Game
+from tqdm import tqdm
 from typing import Tuple, List
 
-from Stack import Game
+STACK_NUM = 100
+COLOR_NUM = 15
 
 
-def minimax(game: Game, depth, maximizing_player):
-    # current_hash = state_hash(game)
-
-    # if depth == 0 or game.is_done() or current_hash in visited_states:
-    #     return game.purity()
-    if depth == 0 or game.is_done():
-        return game.purity()
-    # visited_states.add(current_hash)
-
-    if maximizing_player:
-        max_eval = float('-inf')
-        for move in game.possible_moves():
-            child_game = copy.deepcopy(game)
-            child_game.apply_move(*move)
-            eval = minimax(child_game, depth - 1, False)
-            max_eval = max(max_eval, eval)
-        return max_eval
-    else:
-        min_eval = float('inf')
-        for move in game.possible_moves():
-            child_game = copy.deepcopy(game)
-            child_game.apply_move(*move)
-            eval = minimax(child_game, depth - 1, True)
-            min_eval = min(min_eval, eval)
-        return min_eval
-
-
-def best_move(game, depth, visited_states):
-    best_eval = float('-inf')
-    best_move = None
+def best_move(game, visited_states):
+    best_purity = float('-inf')
+    next_move = None
     for move in game.possible_moves():
         child_game = copy.deepcopy(game)
         child_game.apply_move(*move)
@@ -41,29 +18,41 @@ def best_move(game, depth, visited_states):
         if current_state in visited_states:
             continue
         else:
-            eval = minimax(child_game, depth - 1, False)  # Assuming AI is the maximizing player
-            if eval > best_eval:
-                best_eval = eval
-                best_move = move
-    return best_move
+            current_purity = child_game.purity()
+            if current_purity > best_purity:
+                best_purity = current_purity
+                next_move = move
+    return next_move
 
 
 def state_hash(game):
-    # Convert the game state to a string or another data structure
-    # that can be uniquely hashed.
     return hash(str(game))
 
 
 if __name__ == '__main__':
-    myGame = Game(8, 4)
-    visited_states = set()
+    random.seed(2)
+    myGame = Game(STACK_NUM, COLOR_NUM)
+    states = set()
     count = 0
+    total_iterations = 1
+
+    progress_bar = tqdm(total=total_iterations, desc="Processing", ncols=100)
+    last_progress = 0
     while not myGame.is_done():
-        count +=1
-        next_move = best_move(myGame, 3, visited_states)
-        # print(next_move)
-        # print(myGame)
-        myGame.apply_move(*next_move)
-        visited_states.add(state_hash(myGame))
+        count += 1
+        move = best_move(myGame, states)
+        if not move:
+            myGame.add_stack()
+            move = best_move(myGame, states)
+        myGame.apply_move(*move)
+        states.add(state_hash(myGame))
+        current_progress = myGame.purity()
+        if current_progress != last_progress:
+            progress_bar.update(current_progress - last_progress)
+            last_progress = current_progress
+        # print("{:.2%}".format(myGame.purity()))
+        # progress_bar.update(1)
+
     print(myGame)
-    print(f"SOLVED IN {count} STEPS WITH {myGame.empty - 1} STACK ADDED" )
+    progress_bar.close()
+    print(f"SOLVED IN {count} STEPS WITH {myGame.empty - 1} STACK ADDED")
