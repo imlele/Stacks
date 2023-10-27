@@ -29,30 +29,32 @@ def state_hash(game):
     return hash(str(game))
 
 
-if __name__ == '__main__':
-    random.seed(2)
-    myGame = Game(STACK_NUM, COLOR_NUM)
+def AI_run(game):
     states = set()
     count = 0
     total_iterations = 1
 
     progress_bar = tqdm(total=total_iterations, desc="Processing", ncols=100)
     last_progress = 0
-    while not myGame.is_done():
+    while not game.is_done():
         count += 1
-        move = best_move(myGame, states)
+        move = best_move(game, states)
         if not move:
-            myGame.add_stack()
-            move = best_move(myGame, states)
-        myGame.apply_move(*move)
-        states.add(state_hash(myGame))
-        current_progress = myGame.purity()
+            game.add_stack()
+            move = best_move(game, states)
+        game.apply_move(*move)
+        states.add(state_hash(game))
+        current_progress = game.purity()
         if current_progress != last_progress:
             progress_bar.update(current_progress - last_progress)
             last_progress = current_progress
-        # print("{:.2%}".format(myGame.purity()))
-        # progress_bar.update(1)
-
-    print(myGame)
     progress_bar.close()
-    print(f"SOLVED IN {count} STEPS WITH {myGame.empty - 1} STACK ADDED")
+    return count
+
+
+if __name__ == '__main__':
+    # random.seed(2)
+    game = Game(STACK_NUM, COLOR_NUM)
+    round_num = AI_run(game)
+    print(game)
+    print(f"SOLVED IN {round_num} STEPS WITH {game.empty - 1} STACK ADDED")
