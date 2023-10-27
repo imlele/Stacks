@@ -69,4 +69,18 @@ A brief description of your game and AI solver. What's the main goal of the game
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
+## To-Do:
+
+The following is a list of enhancements and features that we aim to implement in upcoming versions:
+
+- **Improved AI Efficiency**: Work on optimizing the AI algorithms for faster and smarter gameplay solutions.
+  
+- **User Interface Enhancements**: Introduce a graphical user interface (GUI) for a more interactive and intuitive gameplay experience.
+   
+- **Dynamic Difficulty Levels**: Offer varying levels of gameplay difficulty, adapting to the player's proficiency and providing an evolving challenge.
+  
+- **Custom Game Modes**: Provide options for users to customize stack and chip parameters, giving a personalized touch to the gameplay.
+  
+- **Feedback Mechanism**: Introduce a system for players to provide feedback, report bugs, or suggest new features.
+  
+- **Tutorials & Guides**: Develop comprehensive tutorials and guides to assist newcomers in understanding game mechanics and strategies.
