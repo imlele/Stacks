@@ -49,12 +49,6 @@ A brief description of your game and AI solver. What's the main goal of the game
 
 ## AI Solver
 
-Alright, let's provide a more concise summary focused strictly on the AI solver's logic:
-
----
-
-**AI STACK Solver Summary**
-
 1. **Objective**: The AI aims to determine the optimal move at each step to maximize the `purity` of the game's stacks.
 
 2. **Best Move Selection**:
@@ -72,10 +66,6 @@ Alright, let's provide a more concise summary focused strictly on the AI solver'
    - The AI continuously chooses and applies the best move.
    - If no available move can improve the game state, the AI adds a new empty stack and re-evaluates the best move.
    - The process repeats until the game reaches its final, most pure state.
-
----
-
-This focuses solely on the AI decision-making process and how it navigates through the game states to reach an optimal solution.
 
 ## License
 
