@@ -69,6 +69,8 @@ A brief description of your game and AI solver. What's the main goal of the game
 
 ## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
+
 ## To-Do:
 
 The following is a list of enhancements and features that we aim to implement in upcoming versions:
@@ -84,3 +86,4 @@ The following is a list of enhancements and features that we aim to implement in
 - **Feedback Mechanism**: Introduce a system for players to provide feedback, report bugs, or suggest new features.
   
 - **Tutorials & Guides**: Develop comprehensive tutorials and guides to assist newcomers in understanding game mechanics and strategies.
+
